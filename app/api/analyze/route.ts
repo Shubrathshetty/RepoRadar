@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       summary,
       insights: {
         contributors: contributors.map((contributor) => ({
-          login: contributor.login,
+          login: contributor.login ?? "unknown",
           contributions: contributor.contributions ?? 0,
         })),
         activity: {
@@ -129,4 +129,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
