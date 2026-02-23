@@ -669,6 +669,14 @@ export function buildFullRepositoryAnalysis(input: BuildAnalysisInput): Analysis
       evidenceLedger,
       confidenceRationale:
         "Confidence is computed from observable signals (tree coverage, manifests, README quality, and test artifacts), making uncertainty explicit.",
+      deeperAnalysisOptions: [
+        "Interview-style explanation",
+        "Beginner walkthrough",
+        "System design breakdown",
+        "Security audit",
+        "Performance analysis",
+        "Line-by-line code explanation",
+      ],
     },
     insights: {
       contributors: input.contributors,

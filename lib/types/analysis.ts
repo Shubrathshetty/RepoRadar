@@ -151,6 +151,7 @@ export interface DifferentiatorSection {
   whatMakesRepoRadarDifferent: string;
   evidenceLedger: EvidenceItem[];
   confidenceRationale: string;
+  deeperAnalysisOptions: string[];
 }
 
 export interface AnalysisMeta {
