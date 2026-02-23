@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { buildHeuristicSummary } from "@/lib/analyzers/summary";
-import { detectTechStackFromFiles } from "@/lib/analyzers/tech-stack";
+import { buildFullRepositoryAnalysis } from "@/lib/analyzers/full-report";
 import { createGitHubClient } from "@/lib/github/client";
 import { parseGitHubRepoUrl } from "@/lib/github/url";
-import type { AnalysisResult } from "@/lib/types/analysis";
+import type { ContributorInsight } from "@/lib/types/analysis";
 
 const requestSchema = z.object({
   repoUrl: z.url(),
@@ -27,11 +26,32 @@ const DETECTION_FILES = [
   "Dockerfile",
 ];
 
-function decodeReadme(content?: string): string {
+function decodeBase64(content?: string): string {
   if (!content) {
     return "";
   }
   return Buffer.from(content, "base64").toString("utf-8").slice(0, 600);
+}
+
+async function getTextFile(
+  owner: string,
+  repo: string,
+  path: string,
+  getContent: ReturnType<typeof createGitHubClient>["repos"]["getContent"],
+): Promise<string> {
+  try {
+    const response = await getContent({
+      owner,
+      repo,
+      path,
+    });
+    if (Array.isArray(response.data) || response.data.type !== "file") {
+      return "";
+    }
+    return Buffer.from(response.data.content, "base64").toString("utf-8");
+  } catch {
+    return "";
+  }
 }
 
 export async function POST(request: Request) {
@@ -54,7 +74,7 @@ export async function POST(request: Request) {
   const octokit = createGitHubClient();
 
   try {
-    const [{ data: repo }, { data: contributors }, { data: tree }] = await Promise.all([
+    const [{ data: repo }, { data: contributors }, { data: tree }, readme] = await Promise.all([
       octokit.repos.get({
         owner: parsedUrl.owner,
         repo: parsedUrl.repo,
@@ -70,53 +90,54 @@ export async function POST(request: Request) {
         tree_sha: "HEAD",
         recursive: "true",
       }),
-    ]);
-
-    const readme = await octokit.repos
-      .getReadme({
+      octokit.repos.getReadme({
         owner: parsedUrl.owner,
         repo: parsedUrl.repo,
-      })
-      .catch(() => null);
+      }).catch(() => null),
+    ]);
 
     const treePaths = new Set(tree.tree.map((item) => item.path).filter(Boolean) as string[]);
     const detectedFiles = DETECTION_FILES.filter((file) => treePaths.has(file));
-    const techStack = detectTechStackFromFiles(detectedFiles);
+    const getContent = octokit.repos.getContent.bind(octokit.repos);
 
-    const summary = buildHeuristicSummary({
-      repoName: repo.name,
-      repoDescription: repo.description ?? "",
-      topics: repo.topics ?? [],
-      readmeExcerpt: decodeReadme(readme?.data.content),
-    });
+    const [packageJsonText, requirementsText, pyprojectText] = await Promise.all([
+      getTextFile(parsedUrl.owner, parsedUrl.repo, "package.json", getContent),
+      getTextFile(parsedUrl.owner, parsedUrl.repo, "requirements.txt", getContent),
+      getTextFile(parsedUrl.owner, parsedUrl.repo, "pyproject.toml", getContent),
+    ]);
 
-    const result: AnalysisResult = {
+    const mappedContributors: ContributorInsight[] = contributors
+      .filter((contributor) => contributor.type !== "Bot")
+      .map((contributor) => ({
+        login: contributor.login ?? "unknown",
+        contributions: contributor.contributions ?? 0,
+      }))
+      .slice(0, 5);
+
+    const result = buildFullRepositoryAnalysis({
       repo: {
         owner: parsedUrl.owner,
         name: repo.name,
         url: parsedUrl.normalizedUrl,
         description: repo.description ?? "",
       },
-      techStack,
-      summary,
-      insights: {
-        contributors: contributors.map((contributor) => ({
-          login: contributor.login ?? "unknown",
-          contributions: contributor.contributions ?? 0,
-        })),
-        activity: {
-          stars: repo.stargazers_count,
-          forks: repo.forks_count,
-          openIssues: repo.open_issues_count,
-          lastPush: repo.pushed_at ?? new Date().toISOString(),
-        },
+      topics: repo.topics ?? [],
+      defaultBranch: repo.default_branch ?? "main",
+      primaryLanguage: repo.language ?? "",
+      treePaths: [...treePaths],
+      detectedFiles,
+      readmeText: decodeBase64(readme?.data.content),
+      packageJsonText,
+      requirementsText,
+      pyprojectText,
+      contributors: mappedContributors,
+      activity: {
+        stars: repo.stargazers_count,
+        forks: repo.forks_count,
+        openIssues: repo.open_issues_count,
+        lastPush: repo.pushed_at ?? new Date().toISOString(),
       },
-      meta: {
-        generatedAt: new Date().toISOString(),
-        analysisMode: "heuristic",
-        confidence: "medium",
-      },
-    };
+    });
 
     return NextResponse.json(result);
   } catch (error) {
