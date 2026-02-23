@@ -393,6 +393,10 @@ export function RepoAnalyzerForm() {
             <p>
               <strong>Computed confidence:</strong> {result.meta.confidence}
             </p>
+            <p>
+              <strong>Deeper analysis modes</strong>
+            </p>
+            <BulletList items={result.differentiator.deeperAnalysisOptions} />
           </SectionCard>
 
           <SectionCard title="Repository Activity Snapshot">
