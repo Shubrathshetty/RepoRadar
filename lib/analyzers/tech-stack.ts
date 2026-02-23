@@ -42,6 +42,7 @@ export function detectTechStackFromFiles(files: string[]): TechStack {
   const result: TechStack = {
     languages: [],
     frameworks: [],
+    databases: [],
     tooling: [],
     infrastructure: [],
   };
@@ -54,6 +55,7 @@ export function detectTechStackFromFiles(files: string[]): TechStack {
 
     addUnique(result.languages, mapped.languages);
     addUnique(result.frameworks, mapped.frameworks);
+    addUnique(result.databases, mapped.databases);
     addUnique(result.tooling, mapped.tooling);
     addUnique(result.infrastructure, mapped.infrastructure);
   }
@@ -64,4 +66,3 @@ export function detectTechStackFromFiles(files: string[]): TechStack {
 
   return result;
 }
-
