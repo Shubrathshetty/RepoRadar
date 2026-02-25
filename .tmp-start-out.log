@@ -1,10 +1,10 @@
 
 > reporadar@0.1.0 start
-> next start -p 3012
+> next start -p 3016
 
 ▲ Next.js 16.1.6
-- Local:         http://localhost:3012
-- Network:       http://10.239.141.165:3012
+- Local:         http://localhost:3016
+- Network:       http://10.239.141.165:3016
 
 ✓ Starting...
-✓ Ready in 2.1s
+✓ Ready in 8s

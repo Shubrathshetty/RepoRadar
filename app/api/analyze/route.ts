@@ -144,6 +144,11 @@ export async function POST(request: Request) {
     const status = typeof error === "object" && error !== null && "status" in error
       ? Number((error as { status?: number }).status) || 500
       : 500;
+    console.error("Repo analysis failed", {
+      status,
+      message: error instanceof Error ? error.message : "Unknown error",
+      raw: error,
+    });
     return NextResponse.json(
       { error: "Unable to analyze this repository right now." },
       { status },
