@@ -3,6 +3,7 @@
 import { FormEvent, useState, type ReactNode } from "react";
 
 import type { AnalysisResult } from "@/lib/types/analysis";
+import { StarRating, Button } from "@/components/ui";
 
 interface ApiError {
   error: string;
@@ -42,6 +43,8 @@ export function RepoAnalyzerForm() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -415,6 +418,45 @@ export function RepoAnalyzerForm() {
               ))}
             </ul>
           </SectionCard>
+
+          {/* Feedback Section */}
+          <div className="rounded-xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-6 shadow-sm">
+            {!feedbackSubmitted ? (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                    How was this analysis?
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    Your feedback helps us improve RepoRadar
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <StarRating
+                    rating={userRating}
+                    size="lg"
+                    interactive
+                    onRate={setUserRating}
+                  />
+                  {userRating > 0 && (
+                    <Button
+                      size="sm"
+                      onClick={() => setFeedbackSubmitted(true)}
+                    >
+                      Submit
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2 text-green-700">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="font-medium">Thanks for your feedback!</span>
+              </div>
+            )}
+          </div>
         </section>
       ) : null}
     </div>
