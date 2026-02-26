@@ -13,6 +13,7 @@ export function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState("");
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -44,14 +45,26 @@ export function ContactSection() {
     if (!validate()) return;
     
     setIsSubmitting(true);
+    setSubmitError("");
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    console.log("Contact form submitted:", formData);
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    } catch (error) {
+      setIsSubmitting(false);
+      setSubmitError(error instanceof Error ? error.message : "Failed to send message. Please try again.");
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -134,18 +147,18 @@ export function ContactSection() {
 
   if (isSubmitted) {
     return (
-      <section className="py-16 bg-slate-50">
+      <section id="contact" className="py-16 bg-slate-50 dark:bg-slate-900">
         <Container size="md">
-          <Card className="p-8 text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Card className="p-8 text-center dark:bg-slate-800 dark:border-slate-700">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-3">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
               Message Sent!
             </h3>
-            <p className="text-slate-600 mb-6">
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
               Thank you for reaching out. We&apos;ll get back to you within 24 hours.
             </p>
             <Button onClick={() => setIsSubmitted(false)} variant="outline">
@@ -158,7 +171,7 @@ export function ContactSection() {
   }
 
   return (
-    <section className="py-16 bg-slate-50">
+    <section id="contact" className="py-16 bg-slate-50 dark:bg-slate-900">
       <Container size="lg">
         <SectionHeader
           title="Get in Touch"
@@ -169,23 +182,23 @@ export function ContactSection() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Contact Info */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Contact Information</h3>
+            <Card className="p-6 dark:bg-slate-800 dark:border-slate-700">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Contact Information</h3>
               <div className="space-y-4">
                 {contactInfo.map((item) => (
                   <div key={item.label} className="flex items-start gap-3">
-                    <div className="text-slate-500 mt-0.5">{item.icon}</div>
+                    <div className="text-slate-500 dark:text-slate-400 mt-0.5">{item.icon}</div>
                     <div>
-                      <p className="text-sm font-medium text-slate-700">{item.label}</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.label}</p>
                       {item.href ? (
                         <a
                           href={item.href}
-                          className="text-slate-900 hover:text-slate-700 transition-colors"
+                          className="text-slate-900 dark:text-slate-200 hover:text-slate-700 dark:hover:text-white transition-colors"
                         >
                           {item.value}
                         </a>
                       ) : (
-                        <p className="text-slate-900">{item.value}</p>
+                        <p className="text-slate-900 dark:text-slate-200">{item.value}</p>
                       )}
                     </div>
                   </div>
@@ -193,8 +206,8 @@ export function ContactSection() {
               </div>
             </Card>
 
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Follow Us</h3>
+            <Card className="p-6 dark:bg-slate-800 dark:border-slate-700">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Follow Us</h3>
               <div className="flex gap-3">
                 {socialLinks.map((social) => (
                   <a
@@ -202,7 +215,7 @@ export function ContactSection() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+                    className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-colors"
                     aria-label={social.name}
                   >
                     {social.icon}
@@ -214,7 +227,13 @@ export function ContactSection() {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <Card className="p-6">
+            <Card className="p-6 dark:bg-slate-800 dark:border-slate-700">
+              {submitError && (
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-red-600 dark:text-red-400 text-sm">{submitError}</p>
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Input
@@ -223,6 +242,7 @@ export function ContactSection() {
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                     error={errors.name}
+                    className="dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                   />
                   <Input
                     label="Email *"
@@ -231,6 +251,7 @@ export function ContactSection() {
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
                     error={errors.email}
+                    className="dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                   />
                 </div>
 
@@ -240,6 +261,7 @@ export function ContactSection() {
                   value={formData.subject}
                   onChange={(e) => handleChange("subject", e.target.value)}
                   error={errors.subject}
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 />
 
                 <Textarea
@@ -249,10 +271,11 @@ export function ContactSection() {
                   onChange={(e) => handleChange("message", e.target.value)}
                   error={errors.message}
                   rows={6}
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 />
 
                 <div className="flex items-center justify-between pt-4">
-                  <p className="text-sm text-slate-500">* Required fields</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">* Required fields</p>
                   <Button
                     type="submit"
                     disabled={isSubmitting}

@@ -4,77 +4,48 @@ import { useState, useEffect } from "react";
 import { Card, Avatar, StarRating, SectionHeader, Container } from "@/components/ui";
 import type { Testimonial } from "@/lib/types/feedback";
 
-// Mock testimonials data
-const testimonialsData: Testimonial[] = [
-  {
-    id: "1",
-    name: "Sarah Chen",
-    role: "Senior Developer",
-    company: "TechCorp",
-    avatar: "",
-    quote: "RepoRadar has completely transformed how I understand new codebases. The structured analysis saves me hours of manual exploration. The tech stack detection is incredibly accurate!",
-    rating: 5,
-  },
-  {
-    id: "2",
-    name: "Marcus Johnson",
-    role: "Engineering Manager",
-    company: "StartupXYZ",
-    avatar: "",
-    quote: "As a manager, I use RepoRadar to quickly evaluate open-source libraries before adoption. The security considerations and architecture breakdown are invaluable for decision-making.",
-    rating: 5,
-  },
-  {
-    id: "3",
-    name: "Emily Rodriguez",
-    role: "Open Source Contributor",
-    company: "Freelance",
-    avatar: "",
-    quote: "The detailed repository structure analysis helps me find where to contribute. I love how it identifies entry points and key files automatically. A must-have tool for any developer!",
-    rating: 4,
-  },
-  {
-    id: "4",
-    name: "David Kim",
-    role: "Tech Lead",
-    company: "Enterprise Solutions",
-    avatar: "",
-    quote: "We use RepoRadar during code reviews and onboarding. It provides a comprehensive overview that helps new team members get up to speed quickly. The setup instructions are particularly helpful.",
-    rating: 5,
-  },
-  {
-    id: "5",
-    name: "Lisa Thompson",
-    role: "Full Stack Developer",
-    company: "Digital Agency",
-    avatar: "",
-    quote: "The performance and scalability insights have helped us optimize our applications. RepoRadar identifies bottlenecks I wouldn't have noticed otherwise. Highly recommended!",
-    rating: 5,
-  },
-];
-
 export function Testimonials() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    async function fetchTestimonials() {
+      try {
+        const response = await fetch("/api/testimonials");
+        if (response.ok) {
+          const data = await response.json();
+          setTestimonials(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch testimonials:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTestimonials();
+  }, []);
+
+  useEffect(() => {
+    if (!isAutoPlaying || testimonials.length === 0) return;
     
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % testimonialsData.length);
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, testimonials.length]);
 
   const handlePrev = () => {
     setIsAutoPlaying(false);
-    setActiveIndex((prev) => (prev - 1 + testimonialsData.length) % testimonialsData.length);
+    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   const handleNext = () => {
     setIsAutoPlaying(false);
-    setActiveIndex((prev) => (prev + 1) % testimonialsData.length);
+    setActiveIndex((prev) => (prev + 1) % testimonials.length);
   };
 
   const handleDotClick = (index: number) => {
@@ -82,8 +53,30 @@ export function Testimonials() {
     setActiveIndex(index);
   };
 
+  if (loading) {
+    return (
+      <section id="testimonials" className="py-16 bg-slate-50 dark:bg-slate-900">
+        <Container size="lg">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mx-auto"></div>
+            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto"></div>
+            <div className="grid md:grid-cols-3 gap-6 mt-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-64 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="py-16 bg-slate-50">
+    <section id="testimonials" className="py-16 bg-slate-50 dark:bg-slate-900">
       <Container size="lg">
         <SectionHeader
           title="What Developers Say"
@@ -93,7 +86,7 @@ export function Testimonials() {
 
         {/* Desktop Grid */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonialsData.map((testimonial) => (
+          {testimonials.map((testimonial) => (
             <TestimonialCard key={testimonial.id} testimonial={testimonial} />
           ))}
         </div>
@@ -105,7 +98,7 @@ export function Testimonials() {
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${activeIndex * 100}%)` }}
             >
-              {testimonialsData.map((testimonial) => (
+              {testimonials.map((testimonial) => (
                 <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
                   <TestimonialCard testimonial={testimonial} />
                 </div>
@@ -117,22 +110,22 @@ export function Testimonials() {
           <div className="flex items-center justify-center gap-4 mt-6">
             <button
               onClick={handlePrev}
-              className="p-2 rounded-full bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+              className="p-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               aria-label="Previous testimonial"
             >
-              <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
 
             {/* Dots */}
             <div className="flex gap-2">
-              {testimonialsData.map((_, index) => (
+              {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => handleDotClick(index)}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    index === activeIndex ? "bg-slate-900" : "bg-slate-300"
+                    index === activeIndex ? "bg-slate-900 dark:bg-white" : "bg-slate-300 dark:bg-slate-600"
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -141,10 +134,10 @@ export function Testimonials() {
 
             <button
               onClick={handleNext}
-              className="p-2 rounded-full bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+              className="p-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               aria-label="Next testimonial"
             >
-              <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -165,13 +158,13 @@ export function Testimonials() {
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col dark:bg-slate-800 dark:border-slate-700">
       <div className="flex items-center gap-3 mb-4">
         <Avatar alt={testimonial.name} size="lg" />
         <div>
-          <h4 className="font-semibold text-slate-900">{testimonial.name}</h4>
-          <p className="text-sm text-slate-600">{testimonial.role}</p>
-          <p className="text-xs text-slate-500">{testimonial.company}</p>
+          <h4 className="font-semibold text-slate-900 dark:text-white">{testimonial.name}</h4>
+          <p className="text-sm text-slate-600 dark:text-slate-400">{testimonial.role}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-500">{testimonial.company}</p>
         </div>
       </div>
       
@@ -179,7 +172,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         <StarRating rating={testimonial.rating} size="sm" />
       </div>
       
-      <blockquote className="text-slate-700 flex-grow">
+      <blockquote className="text-slate-700 dark:text-slate-300 flex-grow">
         &ldquo;{testimonial.quote}&rdquo;
       </blockquote>
     </Card>
@@ -189,8 +182,8 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
     <div className="p-4">
-      <div className="text-3xl font-bold text-slate-900 mb-1">{value}</div>
-      <div className="text-sm text-slate-600">{label}</div>
+      <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{value}</div>
+      <div className="text-sm text-slate-600 dark:text-slate-400">{label}</div>
     </div>
   );
 }

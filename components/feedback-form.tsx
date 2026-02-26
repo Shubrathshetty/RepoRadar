@@ -21,6 +21,7 @@ export function FeedbackForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState("");
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -50,24 +51,34 @@ export function FeedbackForm() {
     if (!validate()) return;
     
     setIsSubmitting(true);
+    setSubmitError("");
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // In a real app, you would send the data to your backend
-    const feedback: Feedback = {
-      id: Date.now().toString(),
-      category: category as FeedbackCategory,
-      rating,
-      comment,
-      email: email || undefined,
-      createdAt: new Date().toISOString(),
-    };
-    
-    console.log("Feedback submitted:", feedback);
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category,
+          rating,
+          comment,
+          email: email || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to submit feedback");
+      }
+
+      const data = await response.json();
+      console.log("Feedback submitted:", data.feedback);
+      
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    } catch (error) {
+      setIsSubmitting(false);
+      setSubmitError(error instanceof Error ? error.message : "Failed to submit feedback. Please try again.");
+    }
   };
 
   const handleReset = () => {
@@ -76,23 +87,24 @@ export function FeedbackForm() {
     setComment("");
     setEmail("");
     setErrors({});
+    setSubmitError("");
     setIsSubmitted(false);
   };
 
   if (isSubmitted) {
     return (
-      <section className="py-16 bg-white">
+      <section id="feedback" className="py-16 bg-slate-50 dark:bg-slate-900">
         <Container size="md">
-          <Card className="p-8 text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Card className="p-8 text-center dark:bg-slate-800 dark:border-slate-700">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-3">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
               Thank You for Your Feedback!
             </h3>
-            <p className="text-slate-600 mb-6 max-w-md mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
               We appreciate you taking the time to share your thoughts. Your feedback helps us make RepoRadar better for everyone.
             </p>
             <div className="flex gap-3 justify-center">
@@ -110,7 +122,7 @@ export function FeedbackForm() {
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section id="feedback" className="py-16 bg-slate-50 dark:bg-slate-900">
       <Container size="md">
         <SectionHeader
           title="Share Your Feedback"
@@ -118,11 +130,17 @@ export function FeedbackForm() {
           centered
         />
 
-        <Card className="p-6 md:p-8">
+        <Card className="p-6 md:p-8 dark:bg-slate-800 dark:border-slate-700">
+          {submitError && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-600 dark:text-red-400 text-sm">{submitError}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Category Selection */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                 What type of feedback do you have? *
               </label>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -136,23 +154,23 @@ export function FeedbackForm() {
                     }}
                     className={`p-4 rounded-lg border-2 text-left transition-all ${
                       category === cat.value
-                        ? "border-slate-900 bg-slate-50"
-                        : "border-slate-200 hover:border-slate-300"
+                        ? "border-slate-900 dark:border-slate-400 bg-slate-50 dark:bg-slate-700"
+                        : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
                     }`}
                   >
-                    <div className="font-medium text-slate-900 mb-1">{cat.label}</div>
-                    <div className="text-sm text-slate-600">{cat.description}</div>
+                    <div className="font-medium text-slate-900 dark:text-white mb-1">{cat.label}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400">{cat.description}</div>
                   </button>
                 ))}
               </div>
               {errors.category && (
-                <p className="mt-2 text-sm text-red-600">{errors.category}</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.category}</p>
               )}
             </div>
 
             {/* Rating */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                 How would you rate your experience? *
               </label>
               <div className="flex items-center gap-4">
@@ -172,7 +190,7 @@ export function FeedbackForm() {
                 )}
               </div>
               {errors.rating && (
-                <p className="mt-2 text-sm text-red-600">{errors.rating}</p>
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.rating}</p>
               )}
             </div>
 
@@ -187,6 +205,7 @@ export function FeedbackForm() {
               }}
               error={errors.comment}
               rows={5}
+              className="dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
             />
 
             {/* Email (Optional) */}
@@ -200,14 +219,15 @@ export function FeedbackForm() {
                 setErrors((prev) => ({ ...prev, email: "" }));
               }}
               error={errors.email}
+              className="dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
             />
-            <p className="text-xs text-slate-500 -mt-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 -mt-4">
               We&apos;ll only use this to follow up on your feedback if needed.
             </p>
 
             {/* Submit */}
             <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-slate-500">* Required fields</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">* Required fields</p>
               <Button
                 type="submit"
                 disabled={isSubmitting}
