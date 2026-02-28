@@ -16,13 +16,15 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles =
+    "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-slate-900 text-white hover:bg-slate-800 focus:ring-slate-900",
-    secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-500",
-    outline: "border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 focus:ring-slate-500",
-    ghost: "text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:ring-slate-500",
+    primary: "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white focus:ring-slate-900",
+    secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600 focus:ring-slate-500",
+    outline:
+      "border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-800 focus:ring-slate-500",
+    ghost: "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 focus:ring-slate-500",
   };
   
   const sizes = {
@@ -57,7 +59,9 @@ export function Card({ children, className = "", padding = "md" }: CardProps) {
   };
   
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white shadow-sm ${paddings[padding]} ${className}`}>
+    <div
+      className={`rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 shadow-sm ${paddings[padding]} ${className}`}
+    >
       {children}
     </div>
   );
@@ -73,12 +77,12 @@ export function Input({ label, error, className = "", ...props }: InputProps) {
   return (
     <div className="w-full">
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
           {label}
         </label>
       )}
       <input
-        className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
+        className={`w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 transition-colors focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -96,12 +100,12 @@ export function Textarea({ label, error, className = "", ...props }: TextareaPro
   return (
     <div className="w-full">
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
           {label}
         </label>
       )}
       <textarea
-        className={`w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition-colors focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 resize-none ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
+        className={`w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 transition-colors focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 resize-none ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -156,11 +160,13 @@ export function Avatar({ src, alt, size = "md", className = "" }: AvatarProps) {
     .slice(0, 2);
   
   return (
-    <div className={`${sizes[size]} rounded-full bg-slate-200 flex items-center justify-center overflow-hidden ${className}`}>
+    <div
+      className={`${sizes[size]} rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden ${className}`}
+    >
       {src ? (
         <img src={src} alt={alt} className="w-full h-full object-cover" />
       ) : (
-        <span className="font-medium text-slate-600">{initials}</span>
+        <span className="font-medium text-slate-600 dark:text-slate-200">{initials}</span>
       )}
     </div>
   );
@@ -216,7 +222,7 @@ export function StarRating({
               fill={isFilled ? "currentColor" : isHalf ? "url(#half)" : "none"}
               stroke="currentColor"
               strokeWidth={isFilled ? "0" : "2"}
-              className={isFilled || isHalf ? "text-amber-400" : "text-slate-300"}
+              className={isFilled || isHalf ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}
             >
               {isHalf && (
                 <defs>
@@ -246,8 +252,8 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, subtitle, centered = false, className = "" }: SectionHeaderProps) {
   return (
     <div className={`mb-8 ${centered ? "text-center" : ""} ${className}`}>
-      <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
-      {subtitle && <p className="mt-2 text-slate-600">{subtitle}</p>}
+      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h2>
+      {subtitle && <p className="mt-2 text-slate-600 dark:text-slate-300">{subtitle}</p>}
     </div>
   );
 }

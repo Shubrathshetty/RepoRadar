@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, type ReactNode } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import type { AnalysisResult } from "@/lib/types/analysis";
 import { StarRating, Button } from "@/components/ui";
@@ -8,6 +8,8 @@ import { StarRating, Button } from "@/components/ui";
 interface ApiError {
   error: string;
 }
+
+const DEMO_REPO_URL = "https://github.com/vercel/swr";
 
 function SectionCard({
   title,
@@ -46,9 +48,15 @@ export function RepoAnalyzerForm() {
   const [userRating, setUserRating] = useState(0);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const runAnalysis = useCallback(async (url: string) => {
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
+      setError("Please enter a repository URL.");
+      return;
+    }
+
     setError("");
     setResult(null);
     setLoading(true);
@@ -59,7 +67,7 @@ export function RepoAnalyzerForm() {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl }),
+        body: JSON.stringify({ repoUrl: trimmedUrl }),
       });
 
       if (!response.ok) {
@@ -70,11 +78,41 @@ export function RepoAnalyzerForm() {
 
       const body = (await response.json()) as AnalysisResult;
       setResult(body);
+      setRepoUrl(trimmedUrl);
     } catch {
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const handleHashAction = () => {
+      const hash = window.location.hash;
+
+      if (hash === "#repo-analyzer" || hash === "#repo-analyzer-demo") {
+        const container = document.getElementById("repo-analyzer");
+        container?.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.setTimeout(() => {
+          inputRef.current?.focus();
+          inputRef.current?.select();
+        }, 250);
+      }
+
+      if (hash === "#repo-analyzer-demo") {
+        setRepoUrl(DEMO_REPO_URL);
+        void runAnalysis(DEMO_REPO_URL);
+      }
+    };
+
+    handleHashAction();
+    window.addEventListener("hashchange", handleHashAction);
+    return () => window.removeEventListener("hashchange", handleHashAction);
+  }, [runAnalysis]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await runAnalysis(repoUrl);
   }
 
   const handleFeedbackSubmit = async () => {
@@ -100,7 +138,7 @@ export function RepoAnalyzerForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
+    <div id="repo-analyzer" className="mx-auto w-full max-w-4xl px-4 py-10">
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">RepoRadar</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
@@ -114,6 +152,7 @@ export function RepoAnalyzerForm() {
         </label>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
+            ref={inputRef}
             id="repo-url"
             type="url"
             required
@@ -489,3 +528,4 @@ export function RepoAnalyzerForm() {
     </div>
   );
 }
+

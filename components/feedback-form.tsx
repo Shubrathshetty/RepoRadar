@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Card, Button, Input, Textarea, StarRating, Badge, SectionHeader, Container } from "@/components/ui";
-import type { Feedback } from "@/lib/types/feedback";
 
 type FeedbackCategory = "bug" | "feature" | "general" | "praise";
 
