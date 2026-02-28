@@ -2,14 +2,22 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { buildFullRepositoryAnalysis } from "@/lib/analyzers/full-report";
+import {
+  enhanceAnalysisWithGemini,
+  enhanceAnalysisWithGeminiDeepCodePass,
+  type GeminiCodeSnippet,
+} from "@/lib/analyzers/gemini-enhancer";
 import { createGitHubClient } from "@/lib/github/client";
 import { parseGitHubRepoUrl } from "@/lib/github/url";
 import type { ContributorInsight } from "@/lib/types/analysis";
 
 const MAX_TREE_PATHS = 5000;
+const MAX_DEEP_ANALYSIS_FILES = 8;
+const MAX_DEEP_FILE_CHARS = 2800;
 
 const requestSchema = z.object({
   repoUrl: z.url(),
+  deepAnalysis: z.boolean().optional(),
 });
 
 const DETECTION_FILES = [
@@ -27,6 +35,55 @@ const DETECTION_FILES = [
   "composer.json",
   "Dockerfile",
 ];
+
+const DEEP_CODE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".go", ".rs", ".java"];
+
+function selectDeepAnalysisPaths(paths: string[]): string[] {
+  const priorityHints = [
+    "src/",
+    "app/",
+    "lib/",
+    "server/",
+    "api/",
+    "controllers/",
+    "services/",
+    "routes/",
+    "models/",
+    "core/",
+    "main.",
+    "index.",
+  ];
+
+  const candidates = paths
+    .filter((path) => {
+      const lowered = path.toLowerCase();
+      if (lowered.includes(".min.") || lowered.includes("/dist/") || lowered.includes("/build/")) {
+        return false;
+      }
+      return DEEP_CODE_EXTENSIONS.some((ext) => lowered.endsWith(ext));
+    })
+    .map((path) => {
+      const lowered = path.toLowerCase();
+      let score = 0;
+      for (const hint of priorityHints) {
+        if (lowered.includes(hint)) {
+          score += 2;
+        }
+      }
+      if (lowered.includes(".test.") || lowered.includes(".spec.")) {
+        score += 1;
+      }
+      if (lowered.endsWith("index.ts") || lowered.endsWith("main.py") || lowered.endsWith("app.ts")) {
+        score += 2;
+      }
+      return { path, score };
+    })
+    .sort((a, b) => b.score - a.score || a.path.length - b.path.length)
+    .slice(0, MAX_DEEP_ANALYSIS_FILES)
+    .map((item) => item.path);
+
+  return [...new Set(candidates)];
+}
 
 function mapGitHubError(error: unknown): { status: number; message: string } {
   if (error && typeof error === "object" && "status" in error) {
@@ -169,6 +226,7 @@ export async function POST(request: Request) {
       getTextFile(parsedUrl.owner, parsedUrl.repo, "requirements.txt", getContent),
       getTextFile(parsedUrl.owner, parsedUrl.repo, "pyproject.toml", getContent),
     ]);
+    const readmeText = decodeBase64(readme?.data.content);
 
     const mappedContributors: ContributorInsight[] = contributors
       .filter((contributor) => contributor.type !== "Bot")
@@ -190,7 +248,7 @@ export async function POST(request: Request) {
       primaryLanguage: repo.language ?? "",
       treePaths: [...treePaths],
       detectedFiles,
-      readmeText: decodeBase64(readme?.data.content),
+      readmeText,
       packageJsonText,
       requirementsText,
       pyprojectText,
@@ -203,7 +261,54 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(result);
+    let finalResult = result;
+    try {
+      const enhanced = await enhanceAnalysisWithGemini({
+        analysis: result,
+        readmeText,
+        treePaths: [...treePaths],
+        detectedFiles,
+        packageJsonText,
+        requirementsText,
+        pyprojectText,
+      });
+      if (enhanced) {
+        finalResult = enhanced;
+      }
+    } catch (geminiError) {
+      console.warn("Gemini enhancement skipped", {
+        message: geminiError instanceof Error ? geminiError.message : "Unknown Gemini error",
+      });
+    }
+
+    if (parsedBody.data.deepAnalysis) {
+      try {
+        const deepPaths = selectDeepAnalysisPaths([...treePaths]);
+        const deepSnippetsRaw = await Promise.all(
+          deepPaths.map(async (path) => ({
+            path,
+            content: (await getTextFile(parsedUrl.owner, parsedUrl.repo, path, getContent)).slice(0, MAX_DEEP_FILE_CHARS),
+          })),
+        );
+        const deepSnippets: GeminiCodeSnippet[] = deepSnippetsRaw.filter((snippet) => snippet.content.trim().length > 0);
+
+        if (deepSnippets.length > 0) {
+          const deepEnhanced = await enhanceAnalysisWithGeminiDeepCodePass({
+            analysis: finalResult,
+            codeSnippets: deepSnippets,
+          });
+          if (deepEnhanced) {
+            finalResult = deepEnhanced;
+          }
+        }
+      } catch (deepError) {
+        console.warn("Gemini deep code pass skipped", {
+          message: deepError instanceof Error ? deepError.message : "Unknown deep-pass error",
+        });
+      }
+    }
+
+    return NextResponse.json(finalResult);
   } catch (error) {
     const mapped = mapGitHubError(error);
     console.error("Repo analysis failed", {

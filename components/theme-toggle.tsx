@@ -1,17 +1,32 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+
 import { useTheme } from "@/lib/theme-context";
 
+const SYSTEM_ICON = (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+    />
+  </svg>
+);
+
 export function ThemeToggle() {
+  // Keep server and first client render identical to avoid hydration mismatches.
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const { theme, resolvedTheme, toggleTheme } = useTheme();
 
   const getIcon = () => {
     if (theme === "system") {
-      return (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      );
+      return SYSTEM_ICON;
     }
     if (resolvedTheme === "dark") {
       return (
@@ -31,15 +46,16 @@ export function ThemeToggle() {
     if (theme === "system") return "System";
     return resolvedTheme === "dark" ? "Dark" : "Light";
   };
+  const label = isHydrated ? getLabel() : "System";
 
   return (
     <button
       onClick={toggleTheme}
       className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors"
-      aria-label={`Current theme: ${getLabel()}. Click to toggle.`}
-      title={`Theme: ${getLabel()} (click to toggle)`}
+      aria-label={`Current theme: ${label}. Click to toggle.`}
+      title={`Theme: ${label} (click to toggle)`}
     >
-      {getIcon()}
+      {isHydrated ? getIcon() : SYSTEM_ICON}
     </button>
   );
 }

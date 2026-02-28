@@ -40,17 +40,102 @@ function BulletList({ items }: { items: string[] }) {
   );
 }
 
+function toSentence(value: string, fallback: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+  return trimmed.length > 120 ? `${trimmed.slice(0, 117)}...` : trimmed;
+}
+
+function ArchitectureFlowDiagram({ result }: { result: AnalysisResult }) {
+  const nodes = [
+    {
+      title: "Input",
+      detail: toSentence(
+        result.exampleExecutionFlow.input,
+        "User or system input enters the repository interface.",
+      ),
+    },
+    {
+      title: "Architecture",
+      detail: toSentence(
+        result.architecture.highLevelArchitecture,
+        "Request is routed through the project architecture.",
+      ),
+    },
+    {
+      title: "Core Modules",
+      detail: toSentence(
+        result.architecture.componentsAndInteractions[0] ?? "",
+        "Core business modules execute logic and transformations.",
+      ),
+    },
+    {
+      title: "Output",
+      detail: toSentence(
+        result.exampleExecutionFlow.output,
+        "System returns output through APIs, files, or UI.",
+      ),
+    },
+  ];
+
+  return (
+    <SectionCard title="Architecture & Flow Diagram">
+      <div className="overflow-x-auto pb-2">
+        <div className="min-w-[780px] flex items-stretch gap-3">
+          {nodes.map((node, index) => (
+            <div key={node.title} className="flex items-center gap-3">
+              <div className="w-44 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3">
+                <p className="text-xs uppercase tracking-wide font-semibold text-slate-500 dark:text-slate-400">
+                  {node.title}
+                </p>
+                <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{node.detail}</p>
+              </div>
+              {index < nodes.length - 1 ? (
+                <svg
+                  className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 5l7 7-7 7M5 12h15"
+                  />
+                </svg>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </div>
+      <p>
+        <strong className="text-slate-900 dark:text-white">Execution flow steps</strong>
+      </p>
+      <BulletList items={result.architecture.dataFlow} />
+    </SectionCard>
+  );
+}
+
 export function RepoAnalyzerForm() {
   const [repoUrl, setRepoUrl] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [deepAnalysis, setDeepAnalysis] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const deepAnalysisRef = useRef(false);
 
-  const runAnalysis = useCallback(async (url: string) => {
+  useEffect(() => {
+    deepAnalysisRef.current = deepAnalysis;
+  }, [deepAnalysis]);
+
+  const runAnalysis = useCallback(async (url: string, runDeepAnalysis: boolean) => {
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
       setError("Please enter a repository URL.");
@@ -67,7 +152,7 @@ export function RepoAnalyzerForm() {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl: trimmedUrl }),
+        body: JSON.stringify({ repoUrl: trimmedUrl, deepAnalysis: runDeepAnalysis }),
       });
 
       if (!response.ok) {
@@ -101,7 +186,7 @@ export function RepoAnalyzerForm() {
 
       if (hash === "#repo-analyzer-demo") {
         setRepoUrl(DEMO_REPO_URL);
-        void runAnalysis(DEMO_REPO_URL);
+        void runAnalysis(DEMO_REPO_URL, deepAnalysisRef.current);
       }
     };
 
@@ -112,7 +197,7 @@ export function RepoAnalyzerForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await runAnalysis(repoUrl);
+    await runAnalysis(repoUrl, deepAnalysis);
   }
 
   const handleFeedbackSubmit = async () => {
@@ -166,9 +251,18 @@ export function RepoAnalyzerForm() {
             disabled={loading}
             className="rounded-lg bg-slate-900 dark:bg-slate-100 px-4 py-2 text-sm font-medium text-white dark:text-slate-900 disabled:opacity-60 transition-colors"
           >
-            {loading ? "Analyzing..." : "Analyze"}
+            {loading ? (deepAnalysis ? "Deep Analyzing..." : "Analyzing...") : "Analyze"}
           </button>
         </div>
+        <label className="mt-3 inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+          <input
+            type="checkbox"
+            checked={deepAnalysis}
+            onChange={(event) => setDeepAnalysis(event.target.checked)}
+            className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+          />
+          Enable deep Gemini module analysis (slower, higher token usage)
+        </label>
         {error ? <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
       </form>
 
@@ -242,6 +336,8 @@ export function RepoAnalyzerForm() {
             </p>
             <BulletList items={result.architecture.apisOrServices} />
           </SectionCard>
+
+          <ArchitectureFlowDiagram result={result} />
 
           <SectionCard title="5. Core Modules / Important Code">
             <p>
@@ -459,6 +555,9 @@ export function RepoAnalyzerForm() {
             </p>
             <p>
               <strong className="text-slate-900 dark:text-white">Computed confidence:</strong> {result.meta.confidence}
+            </p>
+            <p>
+              <strong className="text-slate-900 dark:text-white">Analysis mode:</strong> {result.meta.analysisMode}
             </p>
             <p>
               <strong className="text-slate-900 dark:text-white">Deeper analysis modes</strong>
