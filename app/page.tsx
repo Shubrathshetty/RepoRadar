@@ -1,34 +1,34 @@
-import { RepoAnalyzerForm } from "@/components/repo-analyzer-form";
-import { Testimonials } from "@/components/testimonials";
-import { RatingSystem } from "@/components/rating-system";
-import { ReviewsList } from "@/components/reviews-list";
-import { FeedbackForm } from "@/components/feedback-form";
-import { ContactSection } from "@/components/contact-section";
-import { Container } from "@/components/ui";
+import { RepoAnalyzerForm } from "@/frontend/components/repo-analyzer-form";
+import { Testimonials } from "@/frontend/components/testimonials";
+import { RatingSystem } from "@/frontend/components/rating-system";
+import { ReviewsList } from "@/frontend/components/reviews-list";
+import { FeedbackForm } from "@/frontend/components/feedback-form";
+import { ContactSection } from "@/frontend/components/contact-section";
+import { Container } from "@/frontend/components/ui";
 
 function HeroSection() {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <section className="py-16 md:py-24 bg-gradient-to-b from-white via-emerald-50 to-lime-50 dark:from-[#050a07] dark:via-[#0b1a12] dark:to-[#06110b]">
       <Container size="lg">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-emerald-950 dark:text-emerald-100 mb-6">
             Understand Any GitHub Repository
-            <span className="text-slate-400 dark:text-slate-300"> in Seconds</span>
+            <span className="text-emerald-500 dark:text-[#39ff88]"> in Seconds</span>
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+          <p className="text-lg text-emerald-800/85 dark:text-emerald-200/85 mb-8">
             RepoRadar analyzes public GitHub repositories and generates comprehensive technical reports. 
             Get insights on architecture, tech stack, setup instructions, and more.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="#repo-analyzer"
-              className="inline-flex items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100 px-6 py-3 text-base font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white transition-all duration-200"
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-600 dark:bg-[#39ff88] px-6 py-3 text-base font-medium text-white dark:text-[#06110b] hover:bg-emerald-700 dark:hover:bg-[#65ff9f] transition-all duration-200"
             >
               Start Analyzing
             </a>
             <a
               href="#repo-analyzer-demo"
-              className="inline-flex items-center justify-center rounded-lg border-2 border-slate-300 dark:border-slate-600 px-6 py-3 text-base font-medium text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
+              className="inline-flex items-center justify-center rounded-lg border-2 border-emerald-300 dark:border-emerald-500/50 px-6 py-3 text-base font-medium text-emerald-800 dark:text-emerald-200 hover:border-emerald-400 dark:hover:border-[#39ff88] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-all duration-200"
             >
               View Demo
             </a>
@@ -99,22 +99,22 @@ function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="py-16 bg-white dark:bg-slate-900">
+    <section id="features" className="py-16 bg-white dark:bg-[#07110c]">
       <Container size="lg">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Powerful Features</h2>
-          <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-emerald-950 dark:text-emerald-100 mb-4">Powerful Features</h2>
+          <p className="text-emerald-800/85 dark:text-emerald-200/85 max-w-2xl mx-auto">
             Everything you need to understand, evaluate, and work with any GitHub repository
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <div key={index} className="p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md transition-all bg-white dark:bg-slate-800">
-              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-700 dark:text-slate-200 mb-4">
+            <div key={index} className="p-6 rounded-xl border border-emerald-100 dark:border-emerald-500/25 hover:border-emerald-300 dark:hover:border-[#39ff88]/50 hover:shadow-md transition-all bg-white dark:bg-[#0b1a12]">
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center text-emerald-700 dark:text-[#39ff88] mb-4">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{feature.title}</h3>
-              <p className="text-slate-600 dark:text-slate-300 text-sm">{feature.description}</p>
+              <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-100 mb-2">{feature.title}</h3>
+              <p className="text-emerald-800/80 dark:text-emerald-200/80 text-sm">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -125,7 +125,7 @@ function FeaturesSection() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen bg-white dark:bg-[#050a07] text-emerald-950 dark:text-emerald-100 transition-colors">
       <HeroSection />
       <FeaturesSection />
       <section id="testimonials">

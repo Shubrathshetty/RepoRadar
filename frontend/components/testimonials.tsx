@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, Avatar, StarRating, SectionHeader, Container } from "@/components/ui";
-import type { Testimonial } from "@/lib/types/feedback";
+import { Card, Avatar, StarRating, SectionHeader, Container } from "@/frontend/components/ui";
+import type { Testimonial } from "@/backend/types/feedback";
 
 export function Testimonials() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);

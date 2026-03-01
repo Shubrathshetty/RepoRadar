@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { AnalysisResult } from "@/lib/types/analysis";
+import type { AnalysisResult } from "@/backend/types/analysis";
 
 const geminiResponseSchema = z.object({
   summary: z.object({

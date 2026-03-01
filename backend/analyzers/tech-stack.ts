@@ -1,4 +1,4 @@
-import type { TechStack } from "@/lib/types/analysis";
+import type { TechStack } from "@/backend/types/analysis";
 
 const FILE_TO_TECH: Record<string, Partial<TechStack>> = {
   "package.json": {

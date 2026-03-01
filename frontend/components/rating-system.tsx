@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, StarRating, Button, SectionHeader, Container } from "@/components/ui";
-import type { RatingStats } from "@/lib/types/feedback";
+import { Card, StarRating, Button, SectionHeader, Container } from "@/frontend/components/ui";
+import type { RatingStats } from "@/backend/types/feedback";
 
 export function RatingSystem() {
   const [userRating, setUserRating] = useState(0);

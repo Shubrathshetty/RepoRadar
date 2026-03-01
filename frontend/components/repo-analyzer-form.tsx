@@ -2,8 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
-import type { AnalysisResult } from "@/lib/types/analysis";
-import { StarRating, Button } from "@/components/ui";
+import type { AnalysisResult } from "@/backend/types/analysis";
+import { StarRating, Button } from "@/frontend/components/ui";
 
 interface ApiError {
   error: string;
@@ -538,33 +538,6 @@ export function RepoAnalyzerForm() {
             </p>
           </SectionCard>
 
-          <SectionCard title="How RepoRadar Differs from Generic LLM Explanations">
-            <p>{result.differentiator.whatMakesRepoRadarDifferent}</p>
-            <p>
-              <strong className="text-slate-900 dark:text-white">Evidence ledger</strong>
-            </p>
-            <ul className="list-inside list-disc space-y-1">
-              {result.differentiator.evidenceLedger.map((item, index) => (
-                <li key={`${item.source}-${index}`} className="text-slate-700 dark:text-slate-300">
-                  <strong>{item.source}:</strong> {item.signal} ({item.supports})
-                </li>
-              ))}
-            </ul>
-            <p>
-              <strong className="text-slate-900 dark:text-white">Confidence rationale:</strong> {result.differentiator.confidenceRationale}
-            </p>
-            <p>
-              <strong className="text-slate-900 dark:text-white">Computed confidence:</strong> {result.meta.confidence}
-            </p>
-            <p>
-              <strong className="text-slate-900 dark:text-white">Analysis mode:</strong> {result.meta.analysisMode}
-            </p>
-            <p>
-              <strong className="text-slate-900 dark:text-white">Deeper analysis modes</strong>
-            </p>
-            <BulletList items={result.differentiator.deeperAnalysisOptions} />
-          </SectionCard>
-
           <SectionCard title="Repository Activity Snapshot">
             <p>
               <strong className="text-slate-900 dark:text-white">Stars:</strong> {result.insights.activity.stars} | <strong className="text-slate-900 dark:text-white">Forks:</strong>{" "}
@@ -622,6 +595,42 @@ export function RepoAnalyzerForm() {
               </div>
             )}
           </div>
+
+          <section className="rounded-xl border-2 border-emerald-300 dark:border-emerald-500/70 bg-gradient-to-r from-emerald-50 via-white to-sky-50 dark:from-emerald-950/40 dark:via-slate-900 dark:to-sky-950/30 p-6 shadow-md">
+            <div className="mb-4 inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-800 dark:text-emerald-200">
+              Highlighted Insight
+            </div>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              How RepoRadar Differs from Generic LLM Explanations
+            </h2>
+            <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+              <p>{result.differentiator.whatMakesRepoRadarDifferent}</p>
+              <p>
+                <strong className="text-slate-900 dark:text-white">Evidence ledger</strong>
+              </p>
+              <ul className="list-inside list-disc space-y-1">
+                {result.differentiator.evidenceLedger.map((item, index) => (
+                  <li key={`${item.source}-${index}`} className="text-slate-700 dark:text-slate-300">
+                    <strong>{item.source}:</strong> {item.signal} ({item.supports})
+                  </li>
+                ))}
+              </ul>
+              <p>
+                <strong className="text-slate-900 dark:text-white">Confidence rationale:</strong>{" "}
+                {result.differentiator.confidenceRationale}
+              </p>
+              <p>
+                <strong className="text-slate-900 dark:text-white">Computed confidence:</strong> {result.meta.confidence}
+              </p>
+              <p>
+                <strong className="text-slate-900 dark:text-white">Analysis mode:</strong> {result.meta.analysisMode}
+              </p>
+              <p>
+                <strong className="text-slate-900 dark:text-white">Deeper analysis modes</strong>
+              </p>
+              <BulletList items={result.differentiator.deeperAnalysisOptions} />
+            </div>
+          </section>
         </section>
       ) : null}
     </div>

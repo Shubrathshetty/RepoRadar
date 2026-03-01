@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, Avatar, StarRating, Badge, Button, SectionHeader, Container } from "@/components/ui";
-import type { Review } from "@/lib/types/feedback";
+import { Card, Avatar, StarRating, Badge, Button, SectionHeader, Container } from "@/frontend/components/ui";
+import type { Review } from "@/backend/types/feedback";
 
 type SortOption = "newest" | "highest" | "lowest" | "helpful";
 type FilterOption = "all" | "5" | "4" | "3" | "2" | "1";

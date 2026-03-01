@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Button, Input, Textarea, SectionHeader, Container } from "@/components/ui";
+import { Card, Button, Input, Textarea, SectionHeader, Container } from "@/frontend/components/ui";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({

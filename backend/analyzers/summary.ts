@@ -1,4 +1,4 @@
-import type { RepoSummary } from "@/lib/types/analysis";
+import type { RepoSummary } from "@/backend/types/analysis";
 
 interface SummaryInput {
   repoName: string;

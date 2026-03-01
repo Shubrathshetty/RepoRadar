@@ -2,8 +2,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fff7;
+  --foreground: #102016;
+  --accent: #22c55e;
+  --accent-soft: #dcfce7;
+  --surface: #ffffff;
 }
 
 @theme inline {
@@ -15,13 +18,19 @@
 
 /* Dark mode support - manual toggle via class */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #050a07;
+  --foreground: #d6ffe7;
+  --accent: #39ff88;
+  --accent-soft: #0c2116;
+  --surface: #07110c;
   color-scheme: dark;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(1200px 800px at 80% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent),
+    radial-gradient(900px 600px at -10% 120%, color-mix(in srgb, var(--accent) 10%, transparent), transparent),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
 }

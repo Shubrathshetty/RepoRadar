@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Button, Input, Textarea, StarRating, Badge, SectionHeader, Container } from "@/components/ui";
+import { Card, Button, Input, Textarea, StarRating, Badge, SectionHeader, Container } from "@/frontend/components/ui";
 
 type FeedbackCategory = "bug" | "feature" | "general" | "praise";
 

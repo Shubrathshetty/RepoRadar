@@ -1,4 +1,4 @@
-import { detectTechStackFromFiles } from "@/lib/analyzers/tech-stack";
+import { detectTechStackFromFiles } from "@/backend/analyzers/tech-stack";
 import type {
   AnalysisResult,
   Confidence,
@@ -6,7 +6,7 @@ import type {
   EvidenceItem,
   RepoInfo,
   TechStack,
-} from "@/lib/types/analysis";
+} from "@/backend/types/analysis";
 
 interface BuildAnalysisInput {
   repo: RepoInfo;

@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { buildFullRepositoryAnalysis } from "@/lib/analyzers/full-report";
+import { buildFullRepositoryAnalysis } from "@/backend/analyzers/full-report";
 import {
   enhanceAnalysisWithGemini,
   enhanceAnalysisWithGeminiDeepCodePass,
   type GeminiCodeSnippet,
-} from "@/lib/analyzers/gemini-enhancer";
-import { createGitHubClient } from "@/lib/github/client";
-import { parseGitHubRepoUrl } from "@/lib/github/url";
-import type { ContributorInsight } from "@/lib/types/analysis";
+} from "@/backend/analyzers/gemini-enhancer";
+import { createGitHubClient } from "@/backend/github/client";
+import { parseGitHubRepoUrl } from "@/backend/github/url";
+import type { ContributorInsight } from "@/backend/types/analysis";
 
 const MAX_TREE_PATHS = 5000;
 const MAX_DEEP_ANALYSIS_FILES = 8;

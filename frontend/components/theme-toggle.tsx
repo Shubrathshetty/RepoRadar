@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-import { useTheme } from "@/lib/theme-context";
+import { useTheme } from "@/frontend/lib/theme-context";
 
 const SYSTEM_ICON = (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors"
+      className="p-2 rounded-lg text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 dark:text-emerald-200 dark:hover:text-[#39ff88] dark:hover:bg-emerald-950/40 transition-colors"
       aria-label={`Current theme: ${label}. Click to toggle.`}
       title={`Theme: ${label} (click to toggle)`}
     >

@@ -17,14 +17,14 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#050a07] disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white focus:ring-slate-900",
-    secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600 focus:ring-slate-500",
+    primary: "bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-[#39ff88] dark:text-[#06110b] dark:hover:bg-[#65ff9f] focus:ring-emerald-500",
+    secondary: "bg-emerald-100 text-emerald-900 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-100 dark:hover:bg-emerald-800/60 focus:ring-emerald-500",
     outline:
-      "border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-800 focus:ring-slate-500",
-    ghost: "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 focus:ring-slate-500",
+      "border-2 border-emerald-300 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-500/50 dark:text-emerald-200 dark:hover:border-[#39ff88] dark:hover:bg-emerald-950/40 focus:ring-emerald-500",
+    ghost: "text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 dark:text-emerald-200 dark:hover:text-[#39ff88] dark:hover:bg-emerald-950/40 focus:ring-emerald-500",
   };
   
   const sizes = {
@@ -60,7 +60,7 @@ export function Card({ children, className = "", padding = "md" }: CardProps) {
   
   return (
     <div
-      className={`rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 shadow-sm ${paddings[padding]} ${className}`}
+      className={`rounded-xl border border-emerald-100 bg-white dark:border-emerald-500/25 dark:bg-[#07110c] shadow-sm ${paddings[padding]} ${className}`}
     >
       {children}
     </div>
@@ -77,12 +77,12 @@ export function Input({ label, error, className = "", ...props }: InputProps) {
   return (
     <div className="w-full">
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label className="mb-1.5 block text-sm font-medium text-emerald-800 dark:text-emerald-200">
           {label}
         </label>
       )}
       <input
-        className={`w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 transition-colors focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
+        className={`w-full rounded-lg border border-emerald-200 dark:border-emerald-500/40 bg-white dark:bg-[#0b1a12] px-3 py-2 text-sm text-emerald-950 dark:text-emerald-100 transition-colors focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -100,12 +100,12 @@ export function Textarea({ label, error, className = "", ...props }: TextareaPro
   return (
     <div className="w-full">
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        <label className="mb-1.5 block text-sm font-medium text-emerald-800 dark:text-emerald-200">
           {label}
         </label>
       )}
       <textarea
-        className={`w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 transition-colors focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 resize-none ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
+        className={`w-full rounded-lg border border-emerald-200 dark:border-emerald-500/40 bg-white dark:bg-[#0b1a12] px-3 py-2 text-sm text-emerald-950 dark:text-emerald-100 transition-colors focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -122,11 +122,11 @@ interface BadgeProps {
 
 export function Badge({ children, variant = "default", className = "" }: BadgeProps) {
   const variants = {
-    default: "bg-slate-100 text-slate-700",
+    default: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
     success: "bg-green-100 text-green-700",
     warning: "bg-amber-100 text-amber-700",
     error: "bg-red-100 text-red-700",
-    info: "bg-blue-100 text-blue-700",
+    info: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200",
   };
   
   return (
@@ -161,12 +161,12 @@ export function Avatar({ src, alt, size = "md", className = "" }: AvatarProps) {
   
   return (
     <div
-      className={`${sizes[size]} rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden ${className}`}
+      className={`${sizes[size]} rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center overflow-hidden ${className}`}
     >
       {src ? (
         <img src={src} alt={alt} className="w-full h-full object-cover" />
       ) : (
-        <span className="font-medium text-slate-600 dark:text-slate-200">{initials}</span>
+        <span className="font-medium text-emerald-700 dark:text-emerald-200">{initials}</span>
       )}
     </div>
   );
@@ -222,7 +222,7 @@ export function StarRating({
               fill={isFilled ? "currentColor" : isHalf ? "url(#half)" : "none"}
               stroke="currentColor"
               strokeWidth={isFilled ? "0" : "2"}
-              className={isFilled || isHalf ? "text-amber-400" : "text-slate-300 dark:text-slate-600"}
+              className={isFilled || isHalf ? "text-amber-400" : "text-emerald-200 dark:text-emerald-700"}
             >
               {isHalf && (
                 <defs>
@@ -252,8 +252,8 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, subtitle, centered = false, className = "" }: SectionHeaderProps) {
   return (
     <div className={`mb-8 ${centered ? "text-center" : ""} ${className}`}>
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h2>
-      {subtitle && <p className="mt-2 text-slate-600 dark:text-slate-300">{subtitle}</p>}
+      <h2 className="text-2xl font-bold text-emerald-950 dark:text-emerald-100">{title}</h2>
+      {subtitle && <p className="mt-2 text-emerald-800/85 dark:text-emerald-200/85">{subtitle}</p>}
     </div>
   );
 }
