@@ -183,7 +183,6 @@ This project demonstrates and helps build skills in:
 - Full-stack architecture with clear frontend/backend boundaries
 - Next.js App Router API route engineering
 - External API orchestration (GitHub + Gemini)
-- Prompt engineering for structured JSON outputs
 - Schema-driven validation with Zod
 - Robust error mapping and fallback strategies
 - Theme systems (light/dark with persisted preference)
